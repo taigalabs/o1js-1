@@ -13,10 +13,11 @@ type Transaction = Awaited<ReturnType<typeof Mina.transaction>>;
 
 // ---------------------------------------------------------------------------------------
 
-import type {
-  MerkleSigPosRangeV1Contract,
-  MerkleSigPosRangeV1ContractUpdateArgs,
+import {
+  type MerkleSigPosRangeV1Contract,
+  type MerkleSigPosRangeV1ContractUpdateArgs,
 } from "../../../merkle_sig_pos_range/src/merkle_sig_pos_range_v1";
+import { Witness } from "o1js/dist/node/lib/merkle-tree";
 
 const state = {
   MerkleSigPosRangeV1Contract: null as
@@ -27,6 +28,8 @@ const state = {
 };
 
 // ---------------------------------------------------------------------------------------
+//
+class MerkleWitness32 extends MerkleWitness(32) {}
 
 const functions = {
   setActiveInstanceToBerkeley: async (args: {}) => {
@@ -79,7 +82,7 @@ const functions = {
   },
 
   fn3: async (args: {}) => {
-    class MerkleWitness32 extends MerkleWitness(32) {}
+    // class MerkleWitness32 extends MerkleWitness(32) {}
     const tree = new MerkleTree(32);
     tree.setLeaf(0n, Field(0));
     const merklePath = new MerkleWitness32(tree.getWitness(0n));
@@ -90,7 +93,6 @@ const functions = {
   },
 
   fn4: async (args: {}) => {
-    class MerkleWitness32 extends MerkleWitness(32) {}
     const tree = new MerkleTree(32);
     const leaf = Field(10);
     tree.setLeaf(0n, leaf);
@@ -106,7 +108,6 @@ const functions = {
   fn5: async (args: {}) => {
     const idx0 = 0n;
     const tree = new MerkleTree(32);
-    class MerkleWitness32 extends MerkleWitness(32) {}
     const sigpos = Field(10);
     const assetSize = Field(1521);
     const assetSizeGreaterEqThan = Field(1000);
@@ -145,28 +146,74 @@ const functions = {
         serialNo,
       );
     });
-    console.log("transaction done");
 
     state.transaction = transaction;
   },
 
-  createUpdateTransaction: async (
-    args: MerkleSigPosRangeV1ContractUpdateArgs,
-  ) => {
-    const {
-      root,
-      sigpos,
-      merklePath,
-      leaf,
-      assetSize,
-      assetSizeGreaterEqThan,
-      assetSizeLessThan,
-      nonce,
-      proofPubKey,
-      serialNo,
-    } = args;
+  fn6: async (args: MerkleSigPosRangeV1ContractUpdateArgs) => {
+    console.log(1, args);
 
-    console.log("args", args);
+    // const {
+    //   root,
+    //   sigpos,
+    //   merklePath,
+    //   leaf,
+    //   assetSize,
+    //   assetSizeGreaterEqThan,
+    //   assetSizeLessThan,
+    //   nonce,
+    //   proofPubKey,
+    //   serialNo,
+    // } = args;
+
+    const root = Field.fromJSON(args.root);
+    const sigpos = Field.fromJSON(args.sigpos);
+    // const witness = JSON.parse(args.merklePath);
+    // const merklePath = new MerkleWitness32(witness);
+    // const leaf = Field.fromJSON(args.leaf);
+    const assetSize = Field.fromJSON(args.assetSize);
+    const assetSizeGreaterEqThan = Field.fromJSON(args.assetSizeGreaterEqThan);
+    const assetSizeLessThan = Field.fromJSON(args.assetSizeLessThan);
+    const nonce = Field.fromJSON(args.nonce);
+    const proofPubKey = Field.fromJSON(args.proofPubKey);
+    const serialNo = Field.fromJSON(args.serialNo);
+
+    // console.log(
+    //   root,
+    //   sigpos,
+    //   merklePath,
+    //   leaf,
+    //   assetSize,
+    //   assetSizeGreaterEqThan,
+    //   assetSizeLessThan,
+    //   nonce,
+    //   proofPubKey,
+    //   serialNo,
+    // );
+
+    const idx0 = 0n;
+    const tree = new MerkleTree(32);
+    class MerkleWitness32 extends MerkleWitness(32) {}
+
+    const witness: Witness = args.merklePath.map((p) => {
+      const w = {
+        isLeft: p.isLeft,
+        sibling: Field.fromJSON(p.sibling),
+      };
+      return w;
+    });
+
+    const leaf = Poseidon.hash([sigpos, assetSize]);
+    tree.setLeaf(idx0, leaf);
+    tree.setLeaf(1n, Field(1));
+    tree.setLeaf(2n, Field(2));
+    tree.setLeaf(3n, Field(3));
+
+    // const sigposAndNonce = Poseidon.hash([sigpos, nonceInt]);
+    // const serialNo = Poseidon.hash([sigposAndNonce, proofPubKeyInt]);
+    // const root = tree.getRoot();
+    // const merklePath = new MerkleWitness32(tree.getWitness(idx0));
+    const merklePath = new MerkleWitness32(witness);
 
     const transaction = await Mina.transaction(() => {
       state.zkapp!.update(
@@ -185,6 +232,40 @@ const functions = {
     console.log("transaction done");
 
     state.transaction = transaction;
+  },
+
+  createUpdateTransaction: async (
+    args: MerkleSigPosRangeV1ContractUpdateArgs,
+  ) => {
+    // const {
+    //   root,
+    //   sigpos,
+    //   merklePath,
+    //   leaf,
+    //   assetSize,
+    //   assetSizeGreaterEqThan,
+    //   assetSizeLessThan,
+    //   nonce,
+    //   proofPubKey,
+    //   serialNo,
+    // } = args;
+    // console.log("args", args);
+    // const transaction = await Mina.transaction(() => {
+    //   state.zkapp!.update(
+    //     root,
+    //     sigpos,
+    //     merklePath,
+    //     leaf,
+    //     assetSize,
+    //     assetSizeGreaterEqThan,
+    //     assetSizeLessThan,
+    //     nonce,
+    //     proofPubKey,
+    //     serialNo,
+    //   );
+    // });
+    // console.log("transaction done");
+    // state.transaction = transaction;
   },
   proveUpdateTransaction: async (args: {}) => {
     await state.transaction!.prove();

@@ -148,7 +148,46 @@ export default function Home() {
       publicKey: state.publicKey!,
     });
 
-    await state.zkappWorkerClient!.fn5();
+    // // args
+    // const idx0 = 0n;
+    // const tree = new MerkleTree(32);
+    // class MerkleWitness32 extends MerkleWitness(32) {}
+    // const sigpos = Field(10);
+    // const assetSize = Field(1521);
+    // const assetSizeGreaterEqThan = Field(1000);
+    // const assetSizeLessThan = Field(10000);
+    // const nonceRaw = "nonce";
+    // const nonceInt = Poseidon.hash(
+    //   CircuitString.fromString(nonceRaw).toFields(),
+    // );
+    // const proofPubKey = "0x0";
+    // const proofPubKeyInt = Poseidon.hash(
+    //   CircuitString.fromString(proofPubKey).toFields(),
+    // );
+
+    // const leaf = Poseidon.hash([sigpos, assetSize]);
+    // tree.setLeaf(idx0, leaf);
+    // tree.setLeaf(1n, Field(1));
+    // tree.setLeaf(2n, Field(2));
+    // tree.setLeaf(3n, Field(3));
+
+    // const sigposAndNonce = Poseidon.hash([sigpos, nonceInt]);
+    // const serialNo = Poseidon.hash([sigposAndNonce, proofPubKeyInt]);
+    // const root = tree.getRoot();
+    // const merklePath = new MerkleWitness32(tree.getWitness(idx0));
+    // const args = {
+    //   root,
+    //   sigpos,
+    //   merklePath,
+    //   leaf,
+    //   assetSize,
+    //   assetSizeGreaterEqThan,
+    //   assetSizeLessThan,
+    //   nonceInt,
+    //   proofPubKeyInt,
+    //   serialNo,
+    // };
+    await state.zkappWorkerClient!.fn6();
     setDisplayText("Creating proof...");
     console.log("Creating proof...");
     await state.zkappWorkerClient!.proveUpdateTransaction();
@@ -224,20 +263,21 @@ export default function Home() {
 
     const merklePath = new MerkleWitness32(tree.getWitness(idx0));
 
-    await state.zkappWorkerClient!.createUpdateTransaction({
-      root,
-      sigpos,
-      merklePath,
-      leaf,
-      //
-      assetSize,
-      assetSizeGreaterEqThan,
-      assetSizeLessThan,
-      //
-      nonce: nonceInt,
-      proofPubKey: proofPubKeyInt,
-      serialNo,
-    });
+    return;
+    // await state.zkappWorkerClient!.createUpdateTransaction({
+    //   root,
+    //   sigpos,
+    //   merklePath,
+    //   leaf,
+    //   //
+    //   assetSize,
+    //   assetSizeGreaterEqThan,
+    //   assetSizeLessThan,
+    //   //
+    //   nonce: nonceInt,
+    //   proofPubKey: proofPubKeyInt,
+    //   serialNo,
+    // });
 
     setDisplayText("Creating proof...");
     console.log("Creating proof...");

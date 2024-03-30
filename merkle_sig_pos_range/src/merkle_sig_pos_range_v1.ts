@@ -7,24 +7,25 @@ import {
   MerkleWitness,
   CircuitString,
   Poseidon,
+  Struct,
 } from 'o1js';
 
-export interface MerkleSigPosRangeV1ContractUpdateArgs {
-  root: Field;
-  sigpos: Field;
-  merklePath: MerkleWitness32;
-  leaf: Field;
-  //
-  assetSize: Field;
-  assetSizeGreaterEqThan: Field;
-  assetSizeLessThan: Field;
-  //
-  nonce: Field;
-  proofPubKey: Field;
-  serialNo: Field;
-}
-
 class MerkleWitness32 extends MerkleWitness(32) {}
+
+export interface MerkleSigPosRangeV1ContractUpdateArgs {
+  root: string; // Field;
+  sigpos: string; // Field;
+  merklePath: { isLeft: boolean; sibling: string }[]; // MerkleWitness32;
+  leaf: string; //Field;
+  //
+  assetSize: string; // Field;
+  assetSizeGreaterEqThan: string; // Field;
+  assetSizeLessThan: string; // Field;
+  //
+  nonce: string; // Field;
+  proofPubKey: string; // Field;
+  serialNo: string; // Field;
+}
 
 export class MerkleSigPosRangeV1Contract extends SmartContract {
   // testing purpose
