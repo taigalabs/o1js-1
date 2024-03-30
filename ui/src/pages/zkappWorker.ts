@@ -45,8 +45,18 @@ const functions = {
     state.zkapp = new state.MerkleSigPosRangeV1Contract!(publicKey);
   },
   getNum: async (args: {}) => {
-    const currentNum = await state.zkapp!.root.get();
+    const currentNum = await state.zkapp!.num.get();
     return JSON.stringify(currentNum.toJSON());
+  },
+  getRoot: async (args: {}) => {
+    const root = await state.zkapp!.root.get();
+    return JSON.stringify(root.toJSON());
+  },
+  createUpdateTransaction2: async (args: {}) => {
+    const transaction = await Mina.transaction(() => {
+      state.zkapp!.update2();
+    });
+    state.transaction = transaction;
   },
   createUpdateTransaction: async (
     args: MerkleSigPosRangeV1ContractUpdateArgs,
@@ -64,6 +74,8 @@ const functions = {
       serialNo,
     } = args;
 
+    console.log("args", args);
+
     const transaction = await Mina.transaction(() => {
       state.zkapp!.update(
         root,
@@ -78,6 +90,8 @@ const functions = {
         serialNo,
       );
     });
+    console.log("transaction done");
+
     state.transaction = transaction;
   },
   proveUpdateTransaction: async (args: {}) => {
@@ -108,6 +122,7 @@ if (typeof window !== "undefined") {
     "message",
     async (event: MessageEvent<ZkappWorkerRequest>) => {
       const returnData = await functions[event.data.fn](event.data.args);
+      console.log("Return data", returnData);
 
       const message: ZkappWorkerReponse = {
         id: event.data.id,

@@ -87,7 +87,6 @@ export default function Home() {
         setDisplayText("zkApp compiled...");
 
         const zkappPublicKey = PublicKey.fromBase58(ZKAPP_ADDRESS);
-
         await zkappWorkerClient.initZkappInstance(zkappPublicKey);
 
         console.log("Getting zkApp state...", zkappPublicKey);
@@ -96,7 +95,7 @@ export default function Home() {
 
         console.log(123);
 
-        const currentNum = await zkappWorkerClient.getNum();
+        const currentNum = await zkappWorkerClient.getRoot();
         console.log(`Current state in zkApp: ${currentNum.toString()}`);
         setDisplayText("");
 
@@ -234,14 +233,14 @@ export default function Home() {
   // -------------------------------------------------------
   // Refresh the current state
 
-  const onRefreshCurrentNum = async () => {
+  const onRefreshCurrentRoot = async () => {
     console.log("Getting zkApp state...");
     setDisplayText("Getting zkApp state...");
 
     await state.zkappWorkerClient!.fetchAccount({
       publicKey: state.zkappPublicKey!,
     });
-    const currentNum = await state.zkappWorkerClient!.getNum();
+    const currentNum = await state.zkappWorkerClient!.getRoot();
     setState({ ...state, currentNum });
     console.log(`Current state in zkApp: ${currentNum.toString()}`);
     setDisplayText("");
@@ -307,7 +306,7 @@ export default function Home() {
         >
           Send Transaction
         </button>
-        <button className={styles.card} onClick={onRefreshCurrentNum}>
+        <button className={styles.card} onClick={onRefreshCurrentRoot}>
           Get Latest State
         </button>
       </div>

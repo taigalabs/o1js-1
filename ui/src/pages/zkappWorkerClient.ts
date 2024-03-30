@@ -39,8 +39,13 @@ export default class ZkappWorkerClient {
     });
   }
 
-  async getNum(): Promise<Field> {
-    const result = await this._call("getNum", {});
+  // async getNum(): Promise<Field> {
+  //   const result = await this._call("getNum", {});
+  //   return Field.fromJSON(JSON.parse(result as string));
+  // }
+
+  async getRoot(): Promise<Field> {
+    const result = await this._call("getRoot", {});
     return Field.fromJSON(JSON.parse(result as string));
   }
 
@@ -87,6 +92,8 @@ export default class ZkappWorkerClient {
         fn,
         args,
       };
+
+      // console.log("msg", message);
 
       this.worker.postMessage(message);
 

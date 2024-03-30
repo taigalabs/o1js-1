@@ -92,7 +92,20 @@ const zkAppAddress = zkAppPrivateKey.toPublicKey();
 
   const merklePath = new MerkleWitness32(tree.getWitness(idx0));
 
-  const txn1 = await Mina.transaction(senderPublicKey, () => {
+  console.log('numBefore', zkApp.num.get());
+  const tx = await Mina.transaction(senderPublicKey, () => {
+    zkApp.update2();
+  });
+  await tx.prove();
+  console.log('tx1 proven');
+
+  let tx1Pending = await tx.sign([senderPrivateKey, zkAppPrivateKey]).send();
+  await tx1Pending.wait();
+
+  const num = zkApp.num.get();
+  console.log('num', num);
+
+  const tx1 = await Mina.transaction(senderPublicKey, () => {
     zkApp.update(
       root,
       sigpos,
@@ -108,10 +121,10 @@ const zkAppAddress = zkAppPrivateKey.toPublicKey();
       serialNo
     );
   });
-  await txn1.prove();
+  await tx1.prove();
   console.log('tx1 proven');
 
-  const pendingTx = await txn1.sign([senderPrivateKey, zkAppPrivateKey]).send();
+  const pendingTx = await tx1.sign([senderPrivateKey, zkAppPrivateKey]).send();
   await pendingTx.wait();
   console.log(
     `BasicMerkleTree: local tree root hash after send1: ${tree.getRoot()}`
