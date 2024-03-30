@@ -16,6 +16,7 @@ type Transaction = Awaited<ReturnType<typeof Mina.transaction>>;
 import {
   type MerkleSigPosRangeV1Contract,
   type MerkleSigPosRangeV1ContractUpdateArgs,
+  // MerkleWitness32,
 } from "../../../merkle_sig_pos_range/src/merkle_sig_pos_range_v1";
 import { Witness } from "o1js/dist/node/lib/merkle-tree";
 
@@ -153,47 +154,15 @@ const functions = {
   fn6: async (args: MerkleSigPosRangeV1ContractUpdateArgs) => {
     console.log(1, args);
 
-    // const {
-    //   root,
-    //   sigpos,
-    //   merklePath,
-    //   leaf,
-    //   assetSize,
-    //   assetSizeGreaterEqThan,
-    //   assetSizeLessThan,
-    //   nonce,
-    //   proofPubKey,
-    //   serialNo,
-    // } = args;
-
     const root = Field.fromJSON(args.root);
     const sigpos = Field.fromJSON(args.sigpos);
-    // const witness = JSON.parse(args.merklePath);
-    // const merklePath = new MerkleWitness32(witness);
-    // const leaf = Field.fromJSON(args.leaf);
     const assetSize = Field.fromJSON(args.assetSize);
     const assetSizeGreaterEqThan = Field.fromJSON(args.assetSizeGreaterEqThan);
     const assetSizeLessThan = Field.fromJSON(args.assetSizeLessThan);
     const nonce = Field.fromJSON(args.nonce);
     const proofPubKey = Field.fromJSON(args.proofPubKey);
     const serialNo = Field.fromJSON(args.serialNo);
-
-    // console.log(
-    //   root,
-    //   sigpos,
-    //   merklePath,
-    //   leaf,
-    //   assetSize,
-    //   assetSizeGreaterEqThan,
-    //   assetSizeLessThan,
-    //   nonce,
-    //   proofPubKey,
-    //   serialNo,
-    // );
-
-    const idx0 = 0n;
-    const tree = new MerkleTree(32);
-    class MerkleWitness32 extends MerkleWitness(32) {}
+    const leaf = Field.fromJSON(args.leaf);
 
     const witness: Witness = args.merklePath.map((p) => {
       const w = {
@@ -203,16 +172,6 @@ const functions = {
       return w;
     });
 
-    const leaf = Poseidon.hash([sigpos, assetSize]);
-    tree.setLeaf(idx0, leaf);
-    tree.setLeaf(1n, Field(1));
-    tree.setLeaf(2n, Field(2));
-    tree.setLeaf(3n, Field(3));
-
-    // const sigposAndNonce = Poseidon.hash([sigpos, nonceInt]);
-    // const serialNo = Poseidon.hash([sigposAndNonce, proofPubKeyInt]);
-    // const root = tree.getRoot();
-    // const merklePath = new MerkleWitness32(tree.getWitness(idx0));
     const merklePath = new MerkleWitness32(witness);
 
     const transaction = await Mina.transaction(() => {
@@ -229,7 +188,6 @@ const functions = {
         serialNo,
       );
     });
-    console.log("transaction done");
 
     state.transaction = transaction;
   },

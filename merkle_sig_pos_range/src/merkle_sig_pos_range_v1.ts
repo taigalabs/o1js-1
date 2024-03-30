@@ -16,7 +16,7 @@ export interface MerkleSigPosRangeV1ContractUpdateArgs {
   root: string; // Field;
   sigpos: string; // Field;
   merklePath: { isLeft: boolean; sibling: string }[]; // MerkleWitness32;
-  leaf: string; //Field;
+  leaf: string; // Field;
   //
   assetSize: string; // Field;
   assetSizeGreaterEqThan: string; // Field;

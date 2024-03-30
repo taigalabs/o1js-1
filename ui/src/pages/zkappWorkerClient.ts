@@ -70,7 +70,7 @@ export default class ZkappWorkerClient {
   fn6() {
     const idx0 = 0n;
     const tree = new MerkleTree(32);
-    class MerkleWitness32 extends MerkleWitness(32) {}
+    // class MerkleWitness32 extends MerkleWitness(32) {}
     const sigpos = Field(10);
     const assetSize = Field(1521);
     const assetSizeGreaterEqThan = Field(1000);
