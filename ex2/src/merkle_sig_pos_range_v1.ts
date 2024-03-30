@@ -47,8 +47,10 @@ export class MerkleSigPosRangeV1Contract extends SmartContract {
   @method update(
     root: Field,
     sigpos: Field,
-    assetSize: Field,
     merklePath: MerkleWitness32,
+    assetSize: Field,
+    assetSizeGreaterEqThan: Field,
+    assetSizeLessThan: Field,
   ) {
     // const initialRoot = this.treeRoot.get();
     // this.treeRoot.requireEquals(initialRoot);
@@ -61,14 +63,16 @@ export class MerkleSigPosRangeV1Contract extends SmartContract {
     const leaf = Poseidon.hash([
       sigpos,
       assetSize,
-    ])
+    ]);
 
     // compute the root after incrementing
-    const rootAfter = merklePath.calculateRoot(
+    const calculatedRoot = merklePath.calculateRoot(
       leaf,
     );
+    calculatedRoot.assertEquals(root);
 
-    rootAfter.assertEquals(root);
+    assetSize.assertGreaterThanOrEqual(assetSizeGreaterEqThan);
+    assetSize.assertLessThan(assetSizeLessThan);
 
     // set the new root
     this.root.set(root);

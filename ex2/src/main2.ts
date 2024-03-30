@@ -113,8 +113,10 @@ const zkAppAddress = zkAppPrivateKey.toPublicKey();
     zkApp.update(
       root,
       val0,
-      assetSize,
       merklePath,
+      assetSize,
+      assetSizeGreaterEqThan,
+      assetSizeLessThan,
     );
   });
   await txn1.prove();
