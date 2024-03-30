@@ -20,6 +20,8 @@ import {
 
 import { MerkleSigPosRangeV1Contract } from './merkle_sig_pos_range_v1.js';
 
+const HEIGHT = 32;
+
 const Local = Mina.LocalBlockchain();
 Mina.setActiveInstance(Local);
 const { privateKey: deployerKey, publicKey: deployerAccount } =
@@ -27,30 +29,18 @@ const { privateKey: deployerKey, publicKey: deployerAccount } =
 const { privateKey: senderPrivateKey, publicKey: senderPublicKey } =
   Local.testAccounts[1];
 
-// const zkAppPrivateKey = PrivateKey.random();
-// const zkAppPublicKey = zkAppPrivateKey.toPublicKey();
-
-// const ledgerZkAppPrivateKey = PrivateKey.random();
-// const ledgerZkAppAddress = ledgerZkAppPrivateKey.toPublicKey();
-
 const zkAppPrivateKey = PrivateKey.random();
 const zkAppAddress = zkAppPrivateKey.toPublicKey();
 
 {
   console.log('start');
-
-  // initialize the zkapp
-  // const zkApp = new BasicMerkleTreeContract(basicTreeZkAppAddress);
   const zkApp = new MerkleSigPosRangeV1Contract(zkAppAddress);
   await MerkleSigPosRangeV1Contract.compile();
   console.log('compiled');
 
-  // create a new tree
-  const height = 32;
-  const tree = new MerkleTree(height);
-  class MerkleWitness32 extends MerkleWitness(height) {}
+  const tree = new MerkleTree(HEIGHT);
+  class MerkleWitness32 extends MerkleWitness(HEIGHT) {}
 
-  // deploy the smart contract
   const deployTxn = await Mina.transaction(deployerAccount, () => {
     AccountUpdate.fundNewAccount(deployerAccount);
     zkApp.deploy();
@@ -100,10 +90,8 @@ const zkAppAddress = zkAppPrivateKey.toPublicKey();
   const root = tree.getRoot();
   console.log('root', root);
 
-  // get the witness for the current tree
   const merklePath = new MerkleWitness32(tree.getWitness(idx0));
 
-  // update the smart contract
   const txn1 = await Mina.transaction(senderPublicKey, () => {
     zkApp.update(
       root,
@@ -127,7 +115,6 @@ const zkAppAddress = zkAppPrivateKey.toPublicKey();
   const pendingTx = await txn1.sign([senderPrivateKey, zkAppPrivateKey]).send();
   await pendingTx.wait();
 
-  // compare the root of the smart contract tree to our local tree
   console.log(
     `BasicMerkleTree: local tree root hash after send1: ${tree.getRoot()}`
   );
