@@ -148,7 +148,7 @@ export default function Home() {
       publicKey: state.publicKey!,
     });
 
-    await state.zkappWorkerClient!.fn2();
+    await state.zkappWorkerClient!.fn3();
     setDisplayText("Creating proof...");
     console.log("Creating proof...");
     await state.zkappWorkerClient!.proveUpdateTransaction();

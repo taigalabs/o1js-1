@@ -81,6 +81,17 @@ const functions = {
     });
     state.transaction = transaction;
   },
+  fn4: async (args: {}) => {
+    class MerkleWitness32 extends MerkleWitness(32) {}
+    const tree = new MerkleTree(32);
+    const leaf = Field(10);
+    tree.setLeaf(0n, leaf);
+    const merklePath = new MerkleWitness32(tree.getWitness(0n));
+    const transaction = await Mina.transaction(() => {
+      state.zkapp!.fn4(Field(0), merklePath, leaf);
+    });
+    state.transaction = transaction;
+  },
   createUpdateTransaction: async (
     args: MerkleSigPosRangeV1ContractUpdateArgs,
   ) => {
