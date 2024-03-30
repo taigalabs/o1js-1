@@ -1,3 +1,3 @@
-import { LedgerContract } from './LedgerContract';
+import { MerkleSigPosRangeV1Contract } from './merkle_sig_pos_range_v1';
 
-export { LedgerContract };
+export { MerkleSigPosRangeV1Contract };

@@ -18,8 +18,6 @@ import {
   Bool,
 } from 'o1js';
 
-// import { LedgerContract } from './LedgerContract.js';
-// import { BasicMerkleTreeContract } from './BasicMerkleTreeContract.js';
 import { MerkleSigPosRangeV1Contract } from './merkle_sig_pos_range_v1.js';
 
 const Local = Mina.LocalBlockchain();
@@ -50,7 +48,7 @@ const zkAppAddress = zkAppPrivateKey.toPublicKey();
   // create a new tree
   const height = 32;
   const tree = new MerkleTree(height);
-  class MerkleWitness32 extends MerkleWitness(height) { }
+  class MerkleWitness32 extends MerkleWitness(height) {}
 
   // deploy the smart contract
   const deployTxn = await Mina.transaction(deployerAccount, () => {
@@ -79,20 +77,13 @@ const zkAppAddress = zkAppPrivateKey.toPublicKey();
   const nonceRaw = 'nonce';
   const nonceInt = Poseidon.hash(CircuitString.fromString(nonceRaw).toFields());
   const proofPubKey = '0x0';
-  const proofPubKeyInt = Poseidon.hash(CircuitString.fromString(proofPubKey).toFields());
+  const proofPubKeyInt = Poseidon.hash(
+    CircuitString.fromString(proofPubKey).toFields()
+  );
 
-  const leaf = Poseidon.hash([
-    sigpos,
-    assetSize,
-  ]);
-  const sigposAndNonce = Poseidon.hash([
-    sigpos,
-    nonceInt,
-  ]);
-  const serialNo = Poseidon.hash([
-    sigposAndNonce,
-    proofPubKeyInt,
-  ]);
+  const leaf = Poseidon.hash([sigpos, assetSize]);
+  const sigposAndNonce = Poseidon.hash([sigpos, nonceInt]);
+  const serialNo = Poseidon.hash([sigposAndNonce, proofPubKeyInt]);
 
   const idx1 = 1n;
   const val1 = Field(11);
@@ -126,7 +117,7 @@ const zkAppAddress = zkAppPrivateKey.toPublicKey();
       //
       nonceInt,
       proofPubKeyInt,
-      serialNo,
+      serialNo
     );
   });
   await txn1.prove();

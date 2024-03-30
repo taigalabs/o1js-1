@@ -110,7 +110,7 @@ export default function Home() {
   useEffect(() => {
     (async () => {
       if (state.hasBeenSetup && !state.accountExists) {
-        for (;;) {
+        for (; ;) {
           setDisplayText("Checking if fee payer account exists...");
           console.log("Checking if fee payer account exists...");
           const res = await state.zkappWorkerClient!.fetchAccount({
