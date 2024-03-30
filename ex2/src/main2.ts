@@ -38,8 +38,6 @@ const { privateKey: senderPrivateKey, publicKey: senderPublicKey } =
 const zkAppPrivateKey = PrivateKey.random();
 const zkAppAddress = zkAppPrivateKey.toPublicKey();
 
-
-
 {
   console.log('start');
 
@@ -69,7 +67,6 @@ const zkAppAddress = zkAppPrivateKey.toPublicKey();
   await deployTxn.prove();
 
   console.log('deployTx proven');
-
   deployTxn.sign([deployerKey, zkAppPrivateKey]);
 
   const pendingDeployTx = await deployTxn.send();
@@ -82,6 +79,14 @@ const zkAppAddress = zkAppPrivateKey.toPublicKey();
 
   const idx0 = 0n;
   const val0 = Field(10);
+  const assetSize = Field(1521);
+  const assetSizeGreaterEqThan = Field(1000);
+  const assetSizeLessThan = Field(10000);
+
+  const leaf = Poseidon.hash([
+    val0,
+    assetSize,
+  ]);
 
   const idx1 = 1n;
   const val1 = Field(11);
@@ -89,17 +94,14 @@ const zkAppAddress = zkAppPrivateKey.toPublicKey();
   const idx2 = 2n;
   const val2 = Field(12);
 
-  const rt1 = tree.getRoot();
-  console.log('rt1', rt1);
-
-  // update the leaf locally
-  tree.setLeaf(idx0, val0);
+  // const rt1 = tree.getRoot();
+  // console.log('rt1', rt1);
+  tree.setLeaf(idx0, leaf);
   tree.setLeaf(idx1, val1);
   tree.setLeaf(idx2, val2);
 
-  const rt2 = tree.getRoot();
-
-  console.log('rt2', rt2);
+  const root = tree.getRoot();
+  console.log('root', root);
 
   // get the witness for the current tree
   const merklePath = new MerkleWitness32(tree.getWitness(idx0));
@@ -109,10 +111,10 @@ const zkAppAddress = zkAppPrivateKey.toPublicKey();
   // update the smart contract
   const txn1 = await Mina.transaction(senderPublicKey, () => {
     zkApp.update(
-      rt2,
+      root,
       val0,
+      assetSize,
       merklePath,
-      // str,
     );
   });
   await txn1.prove();

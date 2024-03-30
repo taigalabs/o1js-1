@@ -6,6 +6,7 @@ import {
   method,
   MerkleWitness,
   CircuitString,
+  Poseidon,
 } from 'o1js';
 
 class MerkleWitness32 extends MerkleWitness(32) { }
@@ -45,9 +46,9 @@ export class MerkleSigPosRangeV1Contract extends SmartContract {
 
   @method update(
     root: Field,
-    leaf: Field,
+    sigpos: Field,
+    assetSize: Field,
     merklePath: MerkleWitness32,
-    // memo: CircuitString,
   ) {
     // const initialRoot = this.treeRoot.get();
     // this.treeRoot.requireEquals(initialRoot);
@@ -57,6 +58,10 @@ export class MerkleSigPosRangeV1Contract extends SmartContract {
     // leafs in new trees start at a state of 0
     // const _rootBefore = leafWitness.calculateRoot(Field(0));
     // rootBefore.assertEquals(root);
+    const leaf = Poseidon.hash([
+      sigpos,
+      assetSize,
+    ])
 
     // compute the root after incrementing
     const rootAfter = merklePath.calculateRoot(
