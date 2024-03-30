@@ -94,9 +94,7 @@ export default function Home() {
         setDisplayText("Getting zkApp state...");
         await zkappWorkerClient.fetchAccount({ publicKey: zkappPublicKey });
 
-        console.log(123);
-
-        const currentNum = await zkappWorkerClient.getRoot();
+        const currentNum = await zkappWorkerClient.getNum();
         console.log(`Current state in zkApp: ${currentNum.toString()}`);
         setDisplayText("");
 
@@ -150,11 +148,31 @@ export default function Home() {
       publicKey: state.publicKey!,
     });
 
-    await state.zkappWorkerClient!.fn1();
-
+    await state.zkappWorkerClient!.fn2();
     setDisplayText("Creating proof...");
     console.log("Creating proof...");
     await state.zkappWorkerClient!.proveUpdateTransaction();
+
+    console.log("Requesting send transaction...");
+    setDisplayText("Requesting send transaction...");
+    const transactionJSON = await state.zkappWorkerClient!.getTransactionJSON();
+
+    setDisplayText("Getting transaction JSON...");
+    console.log("Getting transaction JSON...");
+    const { hash } = await (window as any).mina.sendTransaction({
+      transaction: transactionJSON,
+      feePayer: {
+        fee: transactionFee,
+        memo: "",
+      },
+    });
+
+    const transactionLink = `https://berkeley.minaexplorer.com/transaction/${hash}`;
+    console.log(`View transaction at ${transactionLink}`);
+
+    setTransactionLink(transactionLink);
+    setDisplayText(transactionLink);
+    setState({ ...state, creatingTransaction: false });
   };
 
   const onSendTransaction = async () => {
@@ -258,7 +276,7 @@ export default function Home() {
     await state.zkappWorkerClient!.fetchAccount({
       publicKey: state.zkappPublicKey!,
     });
-    const currentNum = await state.zkappWorkerClient!.getRoot();
+    const currentNum = await state.zkappWorkerClient!.getNum();
     setState({ ...state, currentNum });
     console.log(`Current state in zkApp: ${currentNum.toString()}`);
     setDisplayText("");

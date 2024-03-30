@@ -41,7 +41,6 @@ const zkAppAddress = zkAppPrivateKey.toPublicKey();
   const deployTxn = await Mina.transaction(deployerAccount, () => {
     AccountUpdate.fundNewAccount(deployerAccount);
     zkApp.deploy();
-    zkApp.initState();
   });
   await deployTxn.prove();
 
@@ -103,7 +102,6 @@ const zkAppAddress = zkAppPrivateKey.toPublicKey();
   const num = zkApp.num.get();
   console.log('num', num);
 
-  console.log('numBefore', zkApp.num.get());
   const tx2 = await Mina.transaction(senderPublicKey, () => {
     zkApp.fn2(Field(2));
   });
@@ -111,8 +109,8 @@ const zkAppAddress = zkAppPrivateKey.toPublicKey();
   txPending = await tx2.sign([senderPrivateKey, zkAppPrivateKey]).send();
   await txPending.wait();
   console.log('tx2 proven');
+  console.log('numBefore2', zkApp.num.get());
 
-  console.log('numBefore', zkApp.num.get());
   const tx3 = await Mina.transaction(senderPublicKey, () => {
     zkApp.fn3(Field(2), merklePath);
   });
@@ -120,6 +118,7 @@ const zkAppAddress = zkAppPrivateKey.toPublicKey();
   txPending = await tx3.sign([senderPrivateKey, zkAppPrivateKey]).send();
   await txPending.wait();
   console.log('tx3 proven');
+  console.log('numBefore3', zkApp.num.get());
 
   const tx = await Mina.transaction(senderPublicKey, () => {
     zkApp.update(

@@ -7,7 +7,7 @@ import {
   MerkleWitness,
 } from 'o1js';
 
-class MerkleWitness20 extends MerkleWitness(20) { }
+class MerkleWitness20 extends MerkleWitness(20) {}
 
 export class BasicMerkleTreeContract extends SmartContract {
   @state(Field) treeRoot = State<Field>();

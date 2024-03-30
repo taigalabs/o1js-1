@@ -27,10 +27,9 @@ export interface MerkleSigPosRangeV1ContractUpdateArgs {
 class MerkleWitness32 extends MerkleWitness(32) {}
 
 export class MerkleSigPosRangeV1Contract extends SmartContract {
-  //
+  // testing purpose
   @state(Field) num = State<Field>();
 
-  //
   @state(Field) root = State<Field>();
   @state(Field) nonce = State<Field>();
   @state(Field) proofPubKey = State<Field>();
@@ -38,8 +37,9 @@ export class MerkleSigPosRangeV1Contract extends SmartContract {
   @state(Field) assetSizeGreaterEqThan = State<Field>();
   @state(Field) assetSizeLessThan = State<Field>();
 
-  @method initState() {
-    this.num.set(Field(0));
+  init() {
+    super.init();
+    this.num.set(Field(1));
 
     this.root.set(Field(0));
     this.nonce.set(Field(0));
@@ -49,6 +49,16 @@ export class MerkleSigPosRangeV1Contract extends SmartContract {
     this.assetSizeLessThan.set(Field(0));
   }
 
+  // @method initState(num: Field) {
+  //   this.num.set(num);
+  //   this.root.set(Field(0));
+  //   this.nonce.set(Field(0));
+  //   this.proofPubKey.set(Field(0));
+  //   this.serialNo.set(Field(0));
+  //   this.assetSizeGreaterEqThan.set(Field(0));
+  //   this.assetSizeLessThan.set(Field(0));
+  // }
+
   @method fn1() {
     const currentState = this.num.getAndRequireEquals();
     const newState = currentState.add(2);
@@ -56,11 +66,29 @@ export class MerkleSigPosRangeV1Contract extends SmartContract {
   }
 
   @method fn2(root: Field) {
-    this.num.set(root);
+    const currentState = this.num.getAndRequireEquals();
+    const newState = currentState.add(2);
+    this.num.set(newState);
+
+    this.root.set(root);
   }
 
   @method fn3(root: Field, merklePath: MerkleWitness32) {
-    this.num.set(root);
+    const currentState = this.num.getAndRequireEquals();
+    const newState = currentState.add(2);
+    this.num.set(newState);
+
+    this.root.set(root);
+  }
+
+  @method fn4(root: Field, merklePath: MerkleWitness32, leaf: Field) {
+    const currentState = this.num.getAndRequireEquals();
+    const newState = currentState.add(2);
+    this.num.set(newState);
+
+    const calculatedRoot = merklePath.calculateRoot(leaf);
+    calculatedRoot.assertEquals(root);
+    this.root.set(root);
   }
 
   @method update(
