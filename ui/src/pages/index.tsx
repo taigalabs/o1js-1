@@ -1,12 +1,20 @@
 import { useEffect, useState } from "react";
 import "./reactCOIServiceWorker";
 import ZkappWorkerClient from "./zkappWorkerClient";
-import { PublicKey, Field } from "o1js";
+import {
+  PublicKey,
+  Field,
+  MerkleTree,
+  MerkleWitness,
+  Poseidon,
+  CircuitString,
+} from "o1js";
 import GradientBG from "../components/GradientBG.js";
 import styles from "../styles/Home.module.css";
 
 let transactionFee = 0.1;
-const ZKAPP_ADDRESS = "B62qoHa3E8uP5Lh8Ua9EWHHbdL8DJvRgzgZskpy5berQWNKg49rUsek";
+const ZKAPP_ADDRESS = "B62qqfAtyx3wBYCwQa5NHYuwo6rTEgNm6YKzcpPUrWj2u1KKeeUGYj3";
+const HEIGHT = 32;
 
 export default function Home() {
   const [state, setState] = useState({
@@ -66,6 +74,8 @@ export default function Home() {
         const res = await zkappWorkerClient.fetchAccount({
           publicKey: publicKey!,
         });
+        console.log("account", res);
+
         const accountExists = res.error == null;
 
         await zkappWorkerClient.loadContract();
@@ -110,7 +120,7 @@ export default function Home() {
   useEffect(() => {
     (async () => {
       if (state.hasBeenSetup && !state.accountExists) {
-        for (; ;) {
+        for (;;) {
           setDisplayText("Checking if fee payer account exists...");
           console.log("Checking if fee payer account exists...");
           const res = await state.zkappWorkerClient!.fetchAccount({
@@ -140,7 +150,59 @@ export default function Home() {
       publicKey: state.publicKey!,
     });
 
-    await state.zkappWorkerClient!.createUpdateTransaction();
+    //
+    const tree = new MerkleTree(HEIGHT);
+    class MerkleWitness32 extends MerkleWitness(HEIGHT) {}
+
+    const idx0 = 0n;
+    const sigpos = Field(10);
+    const assetSize = Field(1521);
+    const assetSizeGreaterEqThan = Field(1000);
+    const assetSizeLessThan = Field(10000);
+    const nonceRaw = "nonce";
+    const nonceInt = Poseidon.hash(
+      CircuitString.fromString(nonceRaw).toFields(),
+    );
+    const proofPubKey = "0x0";
+    const proofPubKeyInt = Poseidon.hash(
+      CircuitString.fromString(proofPubKey).toFields(),
+    );
+
+    const leaf = Poseidon.hash([sigpos, assetSize]);
+    const sigposAndNonce = Poseidon.hash([sigpos, nonceInt]);
+    const serialNo = Poseidon.hash([sigposAndNonce, proofPubKeyInt]);
+
+    // Dummy values to populate the tree
+    const idx1 = 1n;
+    const val1 = Field(11);
+    const idx2 = 2n;
+    const val2 = Field(12);
+
+    // const rt1 = tree.getRoot();
+    // console.log('rt1', rt1);
+    tree.setLeaf(idx0, leaf);
+    tree.setLeaf(idx1, val1);
+    tree.setLeaf(idx2, val2);
+
+    const root = tree.getRoot();
+    console.log("root", root);
+
+    const merklePath = new MerkleWitness32(tree.getWitness(idx0));
+
+    await state.zkappWorkerClient!.createUpdateTransaction({
+      root,
+      sigpos,
+      merklePath,
+      leaf,
+      //
+      assetSize,
+      assetSizeGreaterEqThan,
+      assetSizeLessThan,
+      //
+      nonce: nonceInt,
+      proofPubKey: proofPubKeyInt,
+      serialNo,
+    });
 
     setDisplayText("Creating proof...");
     console.log("Creating proof...");

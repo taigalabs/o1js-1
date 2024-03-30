@@ -38,9 +38,6 @@ const zkAppAddress = zkAppPrivateKey.toPublicKey();
   await MerkleSigPosRangeV1Contract.compile();
   console.log('compiled');
 
-  const tree = new MerkleTree(HEIGHT);
-  class MerkleWitness32 extends MerkleWitness(HEIGHT) {}
-
   const deployTxn = await Mina.transaction(deployerAccount, () => {
     AccountUpdate.fundNewAccount(deployerAccount);
     zkApp.deploy();
@@ -58,6 +55,9 @@ const zkAppAddress = zkAppPrivateKey.toPublicKey();
    * `.wait()` automatically resolves once the transaction has been included in a block. this is redundant for the LocalBlockchain, but very helpful for live testnets
    */
   await pendingDeployTx.wait();
+
+  const tree = new MerkleTree(HEIGHT);
+  class MerkleWitness32 extends MerkleWitness(HEIGHT) {}
 
   const idx0 = 0n;
   const sigpos = Field(10);

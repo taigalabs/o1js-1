@@ -1,4 +1,4 @@
-export {};
+export { };
 
 function loadCOIServiceWorker() {
   if (

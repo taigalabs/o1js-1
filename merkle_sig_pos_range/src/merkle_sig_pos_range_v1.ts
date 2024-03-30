@@ -9,6 +9,21 @@ import {
   Poseidon,
 } from 'o1js';
 
+export interface MerkleSigPosRangeV1ContractUpdateArgs {
+  root: Field;
+  sigpos: Field;
+  merklePath: MerkleWitness32;
+  leaf: Field;
+  //
+  assetSize: Field;
+  assetSizeGreaterEqThan: Field;
+  assetSizeLessThan: Field;
+  //
+  nonce: Field;
+  proofPubKey: Field;
+  serialNo: Field;
+}
+
 class MerkleWitness32 extends MerkleWitness(32) {}
 
 export class MerkleSigPosRangeV1Contract extends SmartContract {

@@ -4,16 +4,11 @@ type Transaction = Awaited<ReturnType<typeof Mina.transaction>>;
 
 // ---------------------------------------------------------------------------------------
 
-import type {
-  MerkleSigPosRangeV1Contract,
-  MerkleSigPosRangeV1ContractUpdateArgs,
-} from "../../../merkle_sig_pos_range/src/merkle_sig_pos_range_v1";
+import type { Add } from "../../../contracts/src/Add";
 
 const state = {
-  MerkleSigPosRangeV1Contract: null as
-    | null
-    | typeof MerkleSigPosRangeV1Contract,
-  zkapp: null as null | MerkleSigPosRangeV1Contract,
+  Add: null as null | typeof Add,
+  zkapp: null as null | Add,
   transaction: null as null | Transaction,
 };
 
@@ -28,13 +23,11 @@ const functions = {
     Mina.setActiveInstance(Berkeley);
   },
   loadContract: async (args: {}) => {
-    const { MerkleSigPosRangeV1Contract } = await import(
-      "../../../merkle_sig_pos_range/build/src/merkle_sig_pos_range_v1.js"
-    );
-    state.MerkleSigPosRangeV1Contract = MerkleSigPosRangeV1Contract;
+    const { Add } = await import("../../../contracts/build/src/Add.js");
+    state.Add = Add;
   },
   compileContract: async (args: {}) => {
-    await state.MerkleSigPosRangeV1Contract!.compile();
+    await state.Add!.compile();
   },
   fetchAccount: async (args: { publicKey58: string }) => {
     const publicKey = PublicKey.fromBase58(args.publicKey58);
@@ -42,41 +35,15 @@ const functions = {
   },
   initZkappInstance: async (args: { publicKey58: string }) => {
     const publicKey = PublicKey.fromBase58(args.publicKey58);
-    state.zkapp = new state.MerkleSigPosRangeV1Contract!(publicKey);
+    state.zkapp = new state.Add!(publicKey);
   },
   getNum: async (args: {}) => {
-    const currentNum = await state.zkapp!.root.get();
+    const currentNum = await state.zkapp!.num.get();
     return JSON.stringify(currentNum.toJSON());
   },
-  createUpdateTransaction: async (
-    args: MerkleSigPosRangeV1ContractUpdateArgs,
-  ) => {
-    const {
-      root,
-      sigpos,
-      merklePath,
-      leaf,
-      assetSize,
-      assetSizeGreaterEqThan,
-      assetSizeLessThan,
-      nonce,
-      proofPubKey,
-      serialNo,
-    } = args;
-
+  createUpdateTransaction: async (args: {}) => {
     const transaction = await Mina.transaction(() => {
-      state.zkapp!.update(
-        root,
-        sigpos,
-        merklePath,
-        leaf,
-        assetSize,
-        assetSizeGreaterEqThan,
-        assetSizeLessThan,
-        nonce,
-        proofPubKey,
-        serialNo,
-      );
+      state.zkapp!.update();
     });
     state.transaction = transaction;
   },

@@ -5,7 +5,6 @@ import type {
   ZkappWorkerReponse,
   WorkerFunctions,
 } from "./zkappWorker";
-import { MerkleSigPosRangeV1ContractUpdateArgs } from "../../../merkle_sig_pos_range/src/merkle_sig_pos_range_v1";
 
 export default class ZkappWorkerClient {
   // ---------------------------------------------------------------------------------------
@@ -44,8 +43,8 @@ export default class ZkappWorkerClient {
     return Field.fromJSON(JSON.parse(result as string));
   }
 
-  createUpdateTransaction(args: MerkleSigPosRangeV1ContractUpdateArgs) {
-    return this._call("createUpdateTransaction", args);
+  createUpdateTransaction() {
+    return this._call("createUpdateTransaction", {});
   }
 
   proveUpdateTransaction() {
