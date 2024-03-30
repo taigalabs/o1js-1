@@ -5,21 +5,49 @@ import {
   State,
   method,
   MerkleWitness,
+  CircuitString,
 } from 'o1js';
 
 class MerkleWitness32 extends MerkleWitness(32) { }
 
 export class MerkleSigPosRangeV1Contract extends SmartContract {
-  @state(Field) merkleRoot = State<Field>();
+  @state(Field) root = State<Field>();
+  @state(Field) nonce = State<Field>();
+  @state(Field) proofPubKey = State<Field>();
+  @state(Field) serialNo = State<Field>();
+  @state(Field) assetSizeGreaterEqThan = State<Field>();
+  @state(Field) assetSizeLessThan = State<Field>();
 
-  @method initState(initialRoot: Field) {
-    this.merkleRoot.set(initialRoot);
+  // signal input assetSize;
+  // signal input assetSizeGreaterEqThan;
+  // signal input assetSizeLessThan;
+  // signal input sigpos;
+
+  // // leaf := pos(pos(sigpos), assetSize)
+  // signal input leaf;
+  // signal input root;
+  // signal input pathIndices[nLevels];
+  // signal input siblings[nLevels];
+
+  // signal input proofPubKey;
+  // signal input nonce;
+  // // serialNo := pos(sigpos, nonce)
+  // signal input serialNo;
+
+  @method initState() {
+    this.root.set(Field(0));
+    this.nonce.set(Field(0));
+    this.proofPubKey.set(Field(0));
+    this.serialNo.set(Field(0));
+    this.assetSizeGreaterEqThan.set(Field(0));
+    this.assetSizeLessThan.set(Field(0));
   }
 
   @method update(
-    merkleRoot: Field,
+    root: Field,
+    leaf: Field,
     merklePath: MerkleWitness32,
-    leafVal: Field
+    // memo: CircuitString,
   ) {
     // const initialRoot = this.treeRoot.get();
     // this.treeRoot.requireEquals(initialRoot);
@@ -32,12 +60,13 @@ export class MerkleSigPosRangeV1Contract extends SmartContract {
 
     // compute the root after incrementing
     const rootAfter = merklePath.calculateRoot(
-      leafVal,
+      leaf,
     );
 
-    rootAfter.assertEquals(merkleRoot);
+    rootAfter.assertEquals(root);
 
     // set the new root
-    this.merkleRoot.set(merkleRoot);
+    this.root.set(root);
+    // this.nonce.set(memo);
   }
 }

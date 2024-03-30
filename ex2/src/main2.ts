@@ -29,21 +29,23 @@ const { privateKey: deployerKey, publicKey: deployerAccount } =
 const { privateKey: senderPrivateKey, publicKey: senderPublicKey } =
   Local.testAccounts[1];
 
+// const zkAppPrivateKey = PrivateKey.random();
+// const zkAppPublicKey = zkAppPrivateKey.toPublicKey();
+
+// const ledgerZkAppPrivateKey = PrivateKey.random();
+// const ledgerZkAppAddress = ledgerZkAppPrivateKey.toPublicKey();
+
 const zkAppPrivateKey = PrivateKey.random();
-const zkAppPublicKey = zkAppPrivateKey.toPublicKey();
+const zkAppAddress = zkAppPrivateKey.toPublicKey();
 
-const ledgerZkAppPrivateKey = PrivateKey.random();
-const ledgerZkAppAddress = ledgerZkAppPrivateKey.toPublicKey();
 
-const basicTreeZkAppPrivateKey = PrivateKey.random();
-const basicTreeZkAppAddress = basicTreeZkAppPrivateKey.toPublicKey();
 
 {
   console.log('start');
 
   // initialize the zkapp
   // const zkApp = new BasicMerkleTreeContract(basicTreeZkAppAddress);
-  const zkApp = new MerkleSigPosRangeV1Contract(basicTreeZkAppAddress);
+  const zkApp = new MerkleSigPosRangeV1Contract(zkAppAddress);
   await MerkleSigPosRangeV1Contract.compile();
 
   console.log('compiled ');
@@ -55,17 +57,20 @@ const basicTreeZkAppAddress = basicTreeZkAppPrivateKey.toPublicKey();
   // class MerkleWitness20 extends MerkleWitness(height) { }
   class MerkleWitness32 extends MerkleWitness(height) { }
 
+  const str1 = CircuitString.fromString('abc..xyz');
+
+
   // deploy the smart contract
   const deployTxn = await Mina.transaction(deployerAccount, () => {
     AccountUpdate.fundNewAccount(deployerAccount);
     zkApp.deploy();
-    zkApp.initState(tree.getRoot());
+    zkApp.initState();
   });
   await deployTxn.prove();
 
   console.log('deployTx proven');
 
-  deployTxn.sign([deployerKey, basicTreeZkAppPrivateKey]);
+  deployTxn.sign([deployerKey, zkAppPrivateKey]);
 
   const pendingDeployTx = await deployTxn.send();
   /**
@@ -97,14 +102,17 @@ const basicTreeZkAppAddress = basicTreeZkAppPrivateKey.toPublicKey();
   console.log('rt2', rt2);
 
   // get the witness for the current tree
-  const witness = new MerkleWitness32(tree.getWitness(idx0));
+  const merklePath = new MerkleWitness32(tree.getWitness(idx0));
+
+  // const str = CircuitString.fromString("memo1");
 
   // update the smart contract
   const txn1 = await Mina.transaction(senderPublicKey, () => {
     zkApp.update(
       rt2,
-      witness,
       val0,
+      merklePath,
+      // str,
     );
   });
   await txn1.prove();
@@ -119,6 +127,6 @@ const basicTreeZkAppAddress = basicTreeZkAppPrivateKey.toPublicKey();
     `BasicMerkleTree: local tree root hash after send1: ${tree.getRoot()}`
   );
   console.log(
-    `BasicMerkleTree: smart contract root hash after send1: ${zkApp.merkleRoot.get()}`
+    `BasicMerkleTree: smart contract root hash after send1: ${zkApp.root.get()}`
   );
 }
