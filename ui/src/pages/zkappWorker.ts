@@ -225,9 +225,11 @@ const functions = {
     // console.log("transaction done");
     // state.transaction = transaction;
   },
+
   proveUpdateTransaction: async (args: {}) => {
     await state.transaction!.prove();
   },
+
   getTransactionJSON: async (args: {}) => {
     return state.transaction!.toJSON();
   },
