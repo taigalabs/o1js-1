@@ -56,7 +56,6 @@ export class MerkleSigPosRangeV1Contract extends SmartContract {
 
     // ==> serialNo := pos(sigpos, nonce)
     const _serialNo = Poseidon.hash([sigposAndNonce, proofPubKey]);
-
     _serialNo.assertEquals(serialNo);
 
     this.root.set(root);
