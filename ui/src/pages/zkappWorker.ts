@@ -1,8 +1,10 @@
 import {
+  CircuitString,
   Field,
   MerkleTree,
   MerkleWitness,
   Mina,
+  Poseidon,
   PublicKey,
   fetchAccount,
 } from "o1js";
@@ -51,26 +53,31 @@ const functions = {
     const publicKey = PublicKey.fromBase58(args.publicKey58);
     state.zkapp = new state.MerkleSigPosRangeV1Contract!(publicKey);
   },
+
   getNum: async (args: {}) => {
     const currentNum = await state.zkapp!.num.get();
     return JSON.stringify(currentNum.toJSON());
   },
+
   getRoot: async (args: {}) => {
     const root = await state.zkapp!.root.get();
     return JSON.stringify(root.toJSON());
   },
+
   fn1: async (args: {}) => {
     const transaction = await Mina.transaction(() => {
       state.zkapp!.fn1();
     });
     state.transaction = transaction;
   },
+
   fn2: async (args: {}) => {
     const transaction = await Mina.transaction(() => {
       state.zkapp!.fn2(Field(0));
     });
     state.transaction = transaction;
   },
+
   fn3: async (args: {}) => {
     class MerkleWitness32 extends MerkleWitness(32) {}
     const tree = new MerkleTree(32);
@@ -81,17 +88,68 @@ const functions = {
     });
     state.transaction = transaction;
   },
+
   fn4: async (args: {}) => {
     class MerkleWitness32 extends MerkleWitness(32) {}
     const tree = new MerkleTree(32);
     const leaf = Field(10);
     tree.setLeaf(0n, leaf);
+    const root = tree.getRoot();
+
     const merklePath = new MerkleWitness32(tree.getWitness(0n));
     const transaction = await Mina.transaction(() => {
-      state.zkapp!.fn4(Field(0), merklePath, leaf);
+      state.zkapp!.fn4(root, merklePath, leaf);
     });
     state.transaction = transaction;
   },
+
+  fn5: async (args: {}) => {
+    const idx0 = 0n;
+    const tree = new MerkleTree(32);
+    class MerkleWitness32 extends MerkleWitness(32) {}
+    const sigpos = Field(10);
+    const assetSize = Field(1521);
+    const assetSizeGreaterEqThan = Field(1000);
+    const assetSizeLessThan = Field(10000);
+    const nonceRaw = "nonce";
+    const nonceInt = Poseidon.hash(
+      CircuitString.fromString(nonceRaw).toFields(),
+    );
+    const proofPubKey = "0x0";
+    const proofPubKeyInt = Poseidon.hash(
+      CircuitString.fromString(proofPubKey).toFields(),
+    );
+
+    const leaf = Poseidon.hash([sigpos, assetSize]);
+    tree.setLeaf(idx0, leaf);
+    tree.setLeaf(1n, Field(1));
+    tree.setLeaf(2n, Field(2));
+    tree.setLeaf(3n, Field(3));
+
+    const sigposAndNonce = Poseidon.hash([sigpos, nonceInt]);
+    const serialNo = Poseidon.hash([sigposAndNonce, proofPubKeyInt]);
+    const root = tree.getRoot();
+    const merklePath = new MerkleWitness32(tree.getWitness(idx0));
+
+    const transaction = await Mina.transaction(() => {
+      state.zkapp!.update(
+        root,
+        sigpos,
+        merklePath,
+        leaf,
+        assetSize,
+        assetSizeGreaterEqThan,
+        assetSizeLessThan,
+        nonceInt,
+        proofPubKeyInt,
+        serialNo,
+      );
+    });
+    console.log("transaction done");
+
+    state.transaction = transaction;
+  },
+
   createUpdateTransaction: async (
     args: MerkleSigPosRangeV1ContractUpdateArgs,
   ) => {

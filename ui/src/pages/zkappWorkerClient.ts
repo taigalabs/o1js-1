@@ -51,6 +51,14 @@ export default class ZkappWorkerClient {
     return this._call("fn3", {});
   }
 
+  fn4() {
+    return this._call("fn4", {});
+  }
+
+  fn5() {
+    return this._call("fn5", {});
+  }
+
   async getRoot(): Promise<Field> {
     const result = await this._call("getRoot", {});
     return Field.fromJSON(JSON.parse(result as string));
