@@ -49,10 +49,18 @@ export class MerkleSigPosRangeV1Contract extends SmartContract {
     this.assetSizeLessThan.set(Field(0));
   }
 
-  @method update2() {
+  @method fn1() {
     const currentState = this.num.getAndRequireEquals();
     const newState = currentState.add(2);
     this.num.set(newState);
+  }
+
+  @method fn2(root: Field) {
+    this.num.set(root);
+  }
+
+  @method fn3(root: Field, merklePath: MerkleWitness32) {
+    this.num.set(root);
   }
 
   @method update(
