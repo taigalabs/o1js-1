@@ -13,7 +13,7 @@ import GradientBG from "../components/GradientBG.js";
 import styles from "../styles/Home.module.css";
 
 let transactionFee = 0.1;
-const ZKAPP_ADDRESS = "B62qmHg18N8j1TJgnCenu6fXT1XFPQDsuKsr3VZWFa1h8zcwekGBoXk";
+const ZKAPP_ADDRESS = "B62qmB49xfPPLFtZspXwNpG2gPpfNEVgNc3ZCDLZzALg8vcuTnNDgNY";
 
 const HEIGHT = 32;
 

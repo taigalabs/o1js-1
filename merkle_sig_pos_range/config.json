@@ -18,6 +18,15 @@
       "feepayerAlias": "acc-1",
       "fee": "0.1",
       "smartContract": "MerkleSigPosRangeV1Contract"
+    },
+    "merkle_sig_pos_range_v1_4": {
+      "networkId": "testnet",
+      "url": "https://proxy.berkeley.minaexplorer.com/graphql",
+      "keyPath": "keys/merkle_sig_pos_range_v1_4.json",
+      "feepayerKeyPath": "/home/ubuntu/.cache/zkapp-cli/keys/acc-1.json",
+      "feepayerAlias": "acc-1",
+      "fee": "0.1",
+      "smartContract": "MerkleSigPosRangeV1Contract"
     }
   }
 }
