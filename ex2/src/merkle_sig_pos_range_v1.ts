@@ -17,23 +17,25 @@ export class MerkleSigPosRangeV1Contract extends SmartContract {
   }
 
   @method update(
-    leafWitness: MerkleWitness32,
-    numberBefore: Field,
-    incrementAmount: Field
+    root: Field,
+    merklePath: MerkleWitness32,
+    leafVal: Field
   ) {
-    const initialRoot = this.treeRoot.get();
-    this.treeRoot.requireEquals(initialRoot);
+    // const initialRoot = this.treeRoot.get();
+    // this.treeRoot.requireEquals(initialRoot);
 
     // 1 incrementAmount.assertLessThan(Field(10));
 
-    // check the initial state matches what we expect
-    const rootBefore = leafWitness.calculateRoot(numberBefore);
-    rootBefore.assertEquals(initialRoot);
+    // leafs in new trees start at a state of 0
+    // const _rootBefore = leafWitness.calculateRoot(Field(0));
+    // rootBefore.assertEquals(root);
 
     // compute the root after incrementing
-    // const rootAfter = leafWitness.calculateRoot(
-    //   numberBefore.add(incrementAmount)
-    // );
+    const rootAfter = merklePath.calculateRoot(
+      leafVal,
+    );
+
+    rootAfter.assertEquals(root);
 
     // set the new root
     // this.treeRoot.set(rootAfter);

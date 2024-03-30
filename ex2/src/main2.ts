@@ -79,13 +79,16 @@ const basicTreeZkAppAddress = basicTreeZkAppPrivateKey.toPublicKey();
   const incrementIndex = 522n;
   const incrementAmount = Field(9);
 
+  const rt1 = tree.getRoot();
+  console.log('rt1', rt1);
+
   console.log('witness with incrementIdx', incrementIndex);
 
   // update the leaf locally
   tree.setLeaf(incrementIndex, incrementAmount);
-  const rt = tree.getRoot();
+  const rt2 = tree.getRoot();
 
-  console.log('rt', rt);
+  console.log('rt2', rt2);
 
   // get the witness for the current tree
   const witness = new MerkleWitness32(tree.getWitness(incrementIndex));
@@ -93,8 +96,9 @@ const basicTreeZkAppAddress = basicTreeZkAppPrivateKey.toPublicKey();
   // update the smart contract
   const txn1 = await Mina.transaction(senderPublicKey, () => {
     zkApp.update(
+      rt2,
       witness,
-      Field(0), // leafs in new trees start at a state of 0
+      // Field(0), // leafs in new trees start at a state of 0
       incrementAmount
     );
   });
