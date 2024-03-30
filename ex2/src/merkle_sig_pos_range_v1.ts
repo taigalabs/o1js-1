@@ -19,22 +19,6 @@ export class MerkleSigPosRangeV1Contract extends SmartContract {
   @state(Field) assetSizeGreaterEqThan = State<Field>();
   @state(Field) assetSizeLessThan = State<Field>();
 
-  // signal input assetSize;
-  // signal input assetSizeGreaterEqThan;
-  // signal input assetSizeLessThan;
-  // signal input sigpos;
-
-  // // leaf := pos(pos(sigpos), assetSize)
-  // signal input leaf;
-  // signal input root;
-  // signal input pathIndices[nLevels];
-  // signal input siblings[nLevels];
-
-  // signal input proofPubKey;
-  // signal input nonce;
-  // // serialNo := pos(sigpos, nonce)
-  // signal input serialNo;
-
   @method initState() {
     this.root.set(Field(0));
     this.nonce.set(Field(0));
@@ -48,6 +32,7 @@ export class MerkleSigPosRangeV1Contract extends SmartContract {
     root: Field,
     sigpos: Field,
     merklePath: MerkleWitness32,
+    leaf: Field,
     //
     assetSize: Field,
     assetSizeGreaterEqThan: Field,
@@ -57,20 +42,13 @@ export class MerkleSigPosRangeV1Contract extends SmartContract {
     proofPubKey: Field,
     serialNo: Field,
   ) {
-    // const initialRoot = this.treeRoot.get();
-    // this.treeRoot.requireEquals(initialRoot);
-
-    // 1 incrementAmount.assertLessThan(Field(10));
-
-    // leafs in new trees start at a state of 0
-    // const _rootBefore = leafWitness.calculateRoot(Field(0));
-    // rootBefore.assertEquals(root);
-    const leaf = Poseidon.hash([
+    // => leaf := pos(pos(sigpos), assetSize)
+    const _leaf = Poseidon.hash([
       sigpos,
       assetSize,
     ]);
+    _leaf.assertEquals(leaf);
 
-    // compute the root after incrementing
     const calculatedRoot = merklePath.calculateRoot(
       leaf,
     );
@@ -83,13 +61,22 @@ export class MerkleSigPosRangeV1Contract extends SmartContract {
       sigpos,
       nonce,
     ]);
+
+    // ==> serialNo := pos(sigpos, nonce)
     const _serialNo = Poseidon.hash([
       sigposAndNonce,
       proofPubKey,
     ]);
 
-    // set the new root
+    _serialNo.assertEquals(
+      serialNo,
+    );
+
     this.root.set(root);
-    // this.nonce.set(memo);
+    this.nonce.set(nonce);
+    this.proofPubKey.set(proofPubKey);
+    this.serialNo.set(serialNo);
+    this.assetSizeGreaterEqThan.set(assetSizeGreaterEqThan);
+    this.assetSizeLessThan.set(assetSizeLessThan);
   }
 }

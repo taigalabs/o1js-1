@@ -118,9 +118,12 @@ const zkAppAddress = zkAppPrivateKey.toPublicKey();
       root,
       sigpos,
       merklePath,
+      leaf,
+      //
       assetSize,
       assetSizeGreaterEqThan,
       assetSizeLessThan,
+      //
       nonceInt,
       proofPubKeyInt,
       serialNo,
