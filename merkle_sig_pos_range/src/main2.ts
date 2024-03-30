@@ -75,9 +75,9 @@ const zkAppAddress = zkAppPrivateKey.toPublicKey();
   const sigposAndNonce = Poseidon.hash([sigpos, nonceInt]);
   const serialNo = Poseidon.hash([sigposAndNonce, proofPubKeyInt]);
 
+  // Dummy values to populate the tree
   const idx1 = 1n;
   const val1 = Field(11);
-
   const idx2 = 2n;
   const val2 = Field(12);
 
@@ -109,12 +109,10 @@ const zkAppAddress = zkAppPrivateKey.toPublicKey();
     );
   });
   await txn1.prove();
-
   console.log('tx1 proven');
 
   const pendingTx = await txn1.sign([senderPrivateKey, zkAppPrivateKey]).send();
   await pendingTx.wait();
-
   console.log(
     `BasicMerkleTree: local tree root hash after send1: ${tree.getRoot()}`
   );
