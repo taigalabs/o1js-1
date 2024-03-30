@@ -18,8 +18,9 @@ import {
   Bool,
 } from 'o1js';
 
-import { LedgerContract } from './LedgerContract.js';
-import { BasicMerkleTreeContract } from './BasicMerkleTreeContract.js';
+// import { LedgerContract } from './LedgerContract.js';
+// import { BasicMerkleTreeContract } from './BasicMerkleTreeContract.js';
+import { MerkleSigPosRangeV1Contract } from './merkle_sig_pos_range_v1.js';
 
 const Local = Mina.LocalBlockchain();
 Mina.setActiveInstance(Local);
@@ -41,15 +42,18 @@ const basicTreeZkAppAddress = basicTreeZkAppPrivateKey.toPublicKey();
   console.log('start');
 
   // initialize the zkapp
-  const zkApp = new BasicMerkleTreeContract(basicTreeZkAppAddress);
-  await BasicMerkleTreeContract.compile();
+  // const zkApp = new BasicMerkleTreeContract(basicTreeZkAppAddress);
+  const zkApp = new MerkleSigPosRangeV1Contract(basicTreeZkAppAddress);
+  await MerkleSigPosRangeV1Contract.compile();
 
   console.log('compiled ');
 
   // create a new tree
-  const height = 20;
+  // const height = 20;
+  const height = 32;
   const tree = new MerkleTree(height);
-  class MerkleWitness20 extends MerkleWitness(height) {}
+  // class MerkleWitness20 extends MerkleWitness(height) { }
+  class MerkleWitness32 extends MerkleWitness(height) { }
 
   // deploy the smart contract
   const deployTxn = await Mina.transaction(deployerAccount, () => {
@@ -73,7 +77,6 @@ const basicTreeZkAppAddress = basicTreeZkAppPrivateKey.toPublicKey();
   await pendingDeployTx.wait();
 
   const incrementIndex = 522n;
-  const wrongIdx = 523n;
   const incrementAmount = Field(9);
 
   console.log('witness with incrementIdx', incrementIndex);
@@ -85,8 +88,7 @@ const basicTreeZkAppAddress = basicTreeZkAppPrivateKey.toPublicKey();
   console.log('rt', rt);
 
   // get the witness for the current tree
-  const witness = new MerkleWitness20(tree.getWitness(wrongIdx));
-  123;
+  const witness = new MerkleWitness32(tree.getWitness(incrementIndex));
 
   // update the smart contract
   const txn1 = await Mina.transaction(senderPublicKey, () => {

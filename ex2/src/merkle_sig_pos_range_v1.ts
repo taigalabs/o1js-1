@@ -9,7 +9,7 @@ import {
 
 class MerkleWitness32 extends MerkleWitness(32) { }
 
-export class MerkleSigPosRangeV1 extends SmartContract {
+export class MerkleSigPosRangeV1Contract extends SmartContract {
   @state(Field) treeRoot = State<Field>();
 
   @method initState(initialRoot: Field) {
