@@ -48,9 +48,14 @@ export class MerkleSigPosRangeV1Contract extends SmartContract {
     root: Field,
     sigpos: Field,
     merklePath: MerkleWitness32,
+    //
     assetSize: Field,
     assetSizeGreaterEqThan: Field,
     assetSizeLessThan: Field,
+    //
+    nonce: Field,
+    proofPubKey: Field,
+    serialNo: Field,
   ) {
     // const initialRoot = this.treeRoot.get();
     // this.treeRoot.requireEquals(initialRoot);
@@ -73,6 +78,15 @@ export class MerkleSigPosRangeV1Contract extends SmartContract {
 
     assetSize.assertGreaterThanOrEqual(assetSizeGreaterEqThan);
     assetSize.assertLessThan(assetSizeLessThan);
+
+    const sigposAndNonce = Poseidon.hash([
+      sigpos,
+      nonce,
+    ]);
+    const _serialNo = Poseidon.hash([
+      sigposAndNonce,
+      proofPubKey,
+    ]);
 
     // set the new root
     this.root.set(root);

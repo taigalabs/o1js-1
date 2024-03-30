@@ -45,18 +45,12 @@ const zkAppAddress = zkAppPrivateKey.toPublicKey();
   // const zkApp = new BasicMerkleTreeContract(basicTreeZkAppAddress);
   const zkApp = new MerkleSigPosRangeV1Contract(zkAppAddress);
   await MerkleSigPosRangeV1Contract.compile();
-
-  console.log('compiled ');
+  console.log('compiled');
 
   // create a new tree
-  // const height = 20;
   const height = 32;
   const tree = new MerkleTree(height);
-  // class MerkleWitness20 extends MerkleWitness(height) { }
   class MerkleWitness32 extends MerkleWitness(height) { }
-
-  const str1 = CircuitString.fromString('abc..xyz');
-
 
   // deploy the smart contract
   const deployTxn = await Mina.transaction(deployerAccount, () => {
@@ -78,14 +72,26 @@ const zkAppAddress = zkAppPrivateKey.toPublicKey();
   await pendingDeployTx.wait();
 
   const idx0 = 0n;
-  const val0 = Field(10);
+  const sigpos = Field(10);
   const assetSize = Field(1521);
   const assetSizeGreaterEqThan = Field(1000);
   const assetSizeLessThan = Field(10000);
+  const nonceRaw = 'nonce';
+  const nonceInt = Poseidon.hash(CircuitString.fromString(nonceRaw).toFields());
+  const proofPubKey = '0x0';
+  const proofPubKeyInt = Poseidon.hash(CircuitString.fromString(proofPubKey).toFields());
 
   const leaf = Poseidon.hash([
-    val0,
+    sigpos,
     assetSize,
+  ]);
+  const sigposAndNonce = Poseidon.hash([
+    sigpos,
+    nonceInt,
+  ]);
+  const serialNo = Poseidon.hash([
+    sigposAndNonce,
+    proofPubKeyInt,
   ]);
 
   const idx1 = 1n;
@@ -106,17 +112,18 @@ const zkAppAddress = zkAppPrivateKey.toPublicKey();
   // get the witness for the current tree
   const merklePath = new MerkleWitness32(tree.getWitness(idx0));
 
-  // const str = CircuitString.fromString("memo1");
-
   // update the smart contract
   const txn1 = await Mina.transaction(senderPublicKey, () => {
     zkApp.update(
       root,
-      val0,
+      sigpos,
       merklePath,
       assetSize,
       assetSizeGreaterEqThan,
       assetSizeLessThan,
+      nonceInt,
+      proofPubKeyInt,
+      serialNo,
     );
   });
   await txn1.prove();
