@@ -1,4 +1,11 @@
-import { Mina, PublicKey, fetchAccount } from "o1js";
+import {
+  Field,
+  MerkleTree,
+  MerkleWitness,
+  Mina,
+  PublicKey,
+  fetchAccount,
+} from "o1js";
 
 type Transaction = Awaited<ReturnType<typeof Mina.transaction>>;
 
@@ -52,9 +59,25 @@ const functions = {
     const root = await state.zkapp!.root.get();
     return JSON.stringify(root.toJSON());
   },
-  createUpdateTransaction2: async (args: {}) => {
+  fn1: async (args: {}) => {
     const transaction = await Mina.transaction(() => {
-      state.zkapp!.update2();
+      state.zkapp!.fn1();
+    });
+    state.transaction = transaction;
+  },
+  fn2: async (args: {}) => {
+    const transaction = await Mina.transaction(() => {
+      state.zkapp!.fn2(Field(0));
+    });
+    state.transaction = transaction;
+  },
+  fn3: async (args: {}) => {
+    class MerkleWitness32 extends MerkleWitness(32) {}
+    const tree = new MerkleTree(32);
+    tree.setLeaf(0n, Field(0));
+    const merklePath = new MerkleWitness32(tree.getWitness(0n));
+    const transaction = await Mina.transaction(() => {
+      state.zkapp!.fn3(Field(0), merklePath);
     });
     state.transaction = transaction;
   },

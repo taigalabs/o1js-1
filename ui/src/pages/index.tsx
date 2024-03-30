@@ -13,7 +13,8 @@ import GradientBG from "../components/GradientBG.js";
 import styles from "../styles/Home.module.css";
 
 let transactionFee = 0.1;
-const ZKAPP_ADDRESS = "B62qqfAtyx3wBYCwQa5NHYuwo6rTEgNm6YKzcpPUrWj2u1KKeeUGYj3";
+const ZKAPP_ADDRESS = "B62qmHg18N8j1TJgnCenu6fXT1XFPQDsuKsr3VZWFa1h8zcwekGBoXk";
+
 const HEIGHT = 32;
 
 export default function Home() {
@@ -138,6 +139,23 @@ export default function Home() {
 
   // -------------------------------------------------------
   // Send a transaction
+  //
+  const onSendTransaction2 = async () => {
+    setState({ ...state, creatingTransaction: true });
+
+    setDisplayText("Creating a transaction...");
+    console.log("Creating a transaction...");
+
+    await state.zkappWorkerClient!.fetchAccount({
+      publicKey: state.publicKey!,
+    });
+
+    await state.zkappWorkerClient!.fn1();
+
+    setDisplayText("Creating proof...");
+    console.log("Creating proof...");
+    await state.zkappWorkerClient!.proveUpdateTransaction();
+  };
 
   const onSendTransaction = async () => {
     setState({ ...state, creatingTransaction: true });
@@ -301,7 +319,7 @@ export default function Home() {
         </div>
         <button
           className={styles.card}
-          onClick={onSendTransaction}
+          onClick={onSendTransaction2}
           disabled={state.creatingTransaction}
         >
           Send Transaction
