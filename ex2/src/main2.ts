@@ -59,7 +59,6 @@ const basicTreeZkAppAddress = basicTreeZkAppPrivateKey.toPublicKey();
   const deployTxn = await Mina.transaction(deployerAccount, () => {
     AccountUpdate.fundNewAccount(deployerAccount);
     zkApp.deploy();
-    // get the root of the new tree to use as the initial tree root
     zkApp.initState(tree.getRoot());
   });
   await deployTxn.prove();
@@ -92,6 +91,7 @@ const basicTreeZkAppAddress = basicTreeZkAppPrivateKey.toPublicKey();
   tree.setLeaf(idx0, val0);
   tree.setLeaf(idx1, val1);
   tree.setLeaf(idx2, val2);
+
   const rt2 = tree.getRoot();
 
   console.log('rt2', rt2);
@@ -104,7 +104,7 @@ const basicTreeZkAppAddress = basicTreeZkAppPrivateKey.toPublicKey();
     zkApp.update(
       rt2,
       witness,
-      val1,
+      val0,
     );
   });
   await txn1.prove();
@@ -119,6 +119,6 @@ const basicTreeZkAppAddress = basicTreeZkAppPrivateKey.toPublicKey();
     `BasicMerkleTree: local tree root hash after send1: ${tree.getRoot()}`
   );
   console.log(
-    `BasicMerkleTree: smart contract root hash after send1: ${zkApp.treeRoot.get()}`
+    `BasicMerkleTree: smart contract root hash after send1: ${zkApp.merkleRoot.get()}`
   );
 }

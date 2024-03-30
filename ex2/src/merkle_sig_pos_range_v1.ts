@@ -10,14 +10,14 @@ import {
 class MerkleWitness32 extends MerkleWitness(32) { }
 
 export class MerkleSigPosRangeV1Contract extends SmartContract {
-  @state(Field) treeRoot = State<Field>();
+  @state(Field) merkleRoot = State<Field>();
 
   @method initState(initialRoot: Field) {
-    this.treeRoot.set(initialRoot);
+    this.merkleRoot.set(initialRoot);
   }
 
   @method update(
-    root: Field,
+    merkleRoot: Field,
     merklePath: MerkleWitness32,
     leafVal: Field
   ) {
@@ -35,9 +35,9 @@ export class MerkleSigPosRangeV1Contract extends SmartContract {
       leafVal,
     );
 
-    rootAfter.assertEquals(root);
+    rootAfter.assertEquals(merkleRoot);
 
     // set the new root
-    // this.treeRoot.set(rootAfter);
+    this.merkleRoot.set(merkleRoot);
   }
 }
